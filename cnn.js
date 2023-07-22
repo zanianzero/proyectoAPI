@@ -403,5 +403,3 @@ const productoExiste = async (pro_id) => {
 app.listen(port, () => {
     console.log(`Servidor en ejecución en el puerto: http://localhost:${port}`);
   });
-  //dasdsadassdas
-  
