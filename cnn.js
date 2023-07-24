@@ -46,9 +46,20 @@ app.get('/api/FactClientes', (req, res) => {
         });
 });
 
-//obtener los datos del todos los clientes con sus respectivas cabeceras
-app.get('/api/FactClientes/FactFacturaCabecera', (req, res) => {
-    clientFacturacion.query('SELECT * FROM public."FactCliente" INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"')
+//hacer una lista de clientes con las facturas que se hayan creado
+app.get('/api/FactClientes/Facturas', (req, res) => {
+    const query = `SELECT "FactCliente"."Identificacion", "FactCliente"."Nombre", "FactCliente"."FechaNacimiento",
+                    "FactCliente"."Direccion", "FactCliente"."Telefono", "FactCliente"."CorreoElectronico",
+                    "FactCliente"."Estado", "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
+                    "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
+                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera"."NumeroFactura", "FactFacturaCabecera"."IdentificacionCliente",
+                    "FactFacturaCabecera"."IdTipo"
+                    FROM public."FactCliente"
+                    INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"
+                    ORDER BY "FactCliente"."Identificacion"`;
+
+    clientFacturacion.query(query)
+
         .then(response => {
             res.json(response.rows);
         })
@@ -56,6 +67,9 @@ app.get('/api/FactClientes/FactFacturaCabecera', (req, res) => {
             console.log(err);
         });
 });
+
+    
+
 
 
 
