@@ -17,6 +17,23 @@ app.get('/', (req, res) => {
     res.send('Hola mundo,  esta es una API Rest de facturacion');
 });
 
+
+// obtener los datos de auditoria
+app.get('/api/FactAuditoria', (req, res) => {
+
+    clientFacturacion.query('SELECT * FROM "FactAuditoria" ORDER BY "aud_id"')
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+
+
+
+
 // obtener los datos de los productos
 app.get('/api/FactClientes', (req, res) => {
 
