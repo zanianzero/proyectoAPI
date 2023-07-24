@@ -113,20 +113,6 @@ app.get('/api/FactClientes/Facturas/:identificacionCliente', (req, res) => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Insertar un cliente
 app.post('/api/FactClientes', (req, res) => {
     const { Identificacion, Nombre, FechaNacimiento, Direccion, Telefono, CorreoElectronico, Estado } = req.body;
@@ -423,7 +409,7 @@ const obtenerProductosDesdeAPI = async () => {
     try {
       const API_URL = 'https://inventarioproductos.onrender.com/productos';
       const headers = {
-        Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hdGVpdG8iLCJpYXQiOjE2OTAwMTQ4NzIsImV4cCI6MTY5MDEwMTI3Mn0.LGAhubPLE3aipIf6xpEvrJANTxGR2G0zJVoglwYnA6A',
+        Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hdGVpdG8iLCJpYXQiOjE2OTAxNzk0MTMsImV4cCI6MTY5MDI2NTgxM30.T9aLlxZgmnsPb2u-FgTCNybiL461SjSoFTUXr95NG-U',
       };
   
       const response = await axios.get(API_URL, { headers });
