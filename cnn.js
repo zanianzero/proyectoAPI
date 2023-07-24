@@ -93,9 +93,7 @@ app.get('/api/FactClientes/:id', (req, res) => {
 app.get('/api/FactClientes/Facturas/:identificacionCliente', (req, res) => {
     const identificacionCliente = req.params.identificacionCliente;
 
-    const query = `SELECT "FactCliente"."Identificacion", "FactCliente"."Nombre", "FactCliente"."FechaNacimiento",
-                    "FactCliente"."Direccion", "FactCliente"."Telefono", "FactCliente"."CorreoElectronico",
-                    "FactCliente"."Estado", "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
+    const query = `SELECT "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
                     "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
                     "FactFacturaCabecera"."Estado", "FactFacturaCabecera"."NumeroFactura", "FactFacturaCabecera"."IdentificacionCliente",
                     "FactFacturaCabecera"."IdTipo"
@@ -113,6 +111,10 @@ app.get('/api/FactClientes/Facturas/:identificacionCliente', (req, res) => {
             res.status(500).json({ error: 'Error al obtener las facturas del cliente.' });
         });
 });
+
+
+
+
 
 
 
