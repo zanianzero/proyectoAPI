@@ -30,7 +30,21 @@ app.get('/api/FactAuditoria', (req, res) => {
         });
 });
 
+//filtrar los datos de la auditoria por fecha inicio y fecha fin
+app.get('/api/FactAuditoria/:fechaInicio/:fechaFin', (req, res) => {
+    const fechaInicio = req.params.fechaInicio;
+    const fechaFin = req.params.fechaFin;
+    const query = `SELECT * FROM public."FactAuditoria" WHERE "aud_fecha" BETWEEN $1 AND $2`;
+    const values = [fechaInicio, fechaFin];
+    clientFacturacion.query(query, values)
 
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
 
 
 
