@@ -69,12 +69,6 @@ app.get('/api/FactClientes/Facturas', (req, res) => {
 });
 
     
-
-
-
-
-
-
 // Obtener cliente por ID
 app.get('/api/FactClientes/:id', (req, res) => {
     const idCliente = req.params.id;
@@ -93,6 +87,43 @@ app.get('/api/FactClientes/:id', (req, res) => {
             res.status(500).json({ message: 'Error en el servidor' });
         });
 });
+
+
+// hacer una lista de clientes por id con las facturas que se hayan creado
+app.get('/api/FactClientes/Facturas/:identificacionCliente', (req, res) => {
+    const identificacionCliente = req.params.identificacionCliente;
+
+    const query = `SELECT "FactCliente"."Identificacion", "FactCliente"."Nombre", "FactCliente"."FechaNacimiento",
+                    "FactCliente"."Direccion", "FactCliente"."Telefono", "FactCliente"."CorreoElectronico",
+                    "FactCliente"."Estado", "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
+                    "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
+                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera"."NumeroFactura", "FactFacturaCabecera"."IdentificacionCliente",
+                    "FactFacturaCabecera"."IdTipo"
+                    FROM public."FactCliente"
+                    INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"
+                    WHERE "FactCliente"."Identificacion" = $1
+                    ORDER BY "FactCliente"."Identificacion"`;
+
+    clientFacturacion.query(query, [identificacionCliente])
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: 'Error al obtener las facturas del cliente.' });
+        });
+});
+
+
+
+
+
+
+
+
+
+
+
 
 // Insertar un cliente
 app.post('/api/FactClientes', (req, res) => {
