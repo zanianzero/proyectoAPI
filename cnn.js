@@ -46,6 +46,21 @@ app.get('/api/FactClientes', (req, res) => {
         });
 });
 
+//obtener los datos del todos los clientes con sus respectivas cabeceras
+app.get('/api/FactClientes/FactFacturaCabecera', (req, res) => {
+    clientFacturacion.query('SELECT * FROM public."FactCliente" INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"')
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+
+
+
+
 // Obtener cliente por ID
 app.get('/api/FactClientes/:id', (req, res) => {
     const idCliente = req.params.id;
