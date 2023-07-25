@@ -66,7 +66,7 @@ app.get('/api/FactClientes/Facturas', (req, res) => {
                     "FactCliente"."Direccion", "FactCliente"."Telefono", "FactCliente"."CorreoElectronico",
                     "FactCliente"."Estado", "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
                     "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
-                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera"."NumeroFactura", "FactFacturaCabecera"."IdentificacionCliente",
+                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera", "FactFacturaCabecera"."IdentificacionCliente",
                     "FactFacturaCabecera"."IdTipo"
                     FROM public."FactCliente"
                     INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"
@@ -109,7 +109,7 @@ app.get('/api/FactClientes/Facturas/:identificacionCliente', (req, res) => {
 
     const query = `SELECT "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
                     "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
-                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera"."NumeroFactura", "FactFacturaCabecera"."IdentificacionCliente",
+                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera", "FactFacturaCabecera"."IdentificacionCliente",
                     "FactFacturaCabecera"."IdTipo"
                     FROM public."FactCliente"
                     INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"
@@ -332,7 +332,7 @@ app.get('/api/FactDetalleFactura/FacturaCabecera/:id', (req, res) => {
             res.json(response.rows);
         })
         .catch(err => {
-            console.error(err);
+            console.error(err);i
             res.status(500).json({ message: 'Error en el servidor' });
         });
 });
