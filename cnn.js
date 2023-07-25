@@ -340,16 +340,16 @@ app.get('/api/FactDetalleFactura/FacturaCabecera/:id', (req, res) => {
 // Registrar factura
 // Registrar factura
 app.post('/api/FactFacturacion', (req, res) => {
-    const { FechaFactura, Subtotal, Iva, Total, Estado, NumeroFactura, IdentificacionCliente, IdTipo, 
+    const { FechaFactura, Subtotal, Iva, Total, Estado, IdentificacionCliente, IdTipo, 
                     Detalles } = req.body;
 
     let facturaCabeceraId;
 
     // Primero insertamos la cabecera de la factura
     const queryCabecera = `INSERT INTO public."FactFacturaCabecera" ("FechaFactura", "Subtotal", "Iva", 
-                                "Total", "Estado", "NumeroFactura", "IdentificacionCliente", "IdTipo") 
-                           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "IdFacturaCabecera"`;
-    const valuesCabecera = [FechaFactura, Subtotal, Iva, Total, Estado, NumeroFactura, IdentificacionCliente,
+                                "Total", "Estado", "IdentificacionCliente", "IdTipo") 
+                           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING "IdFacturaCabecera"`;
+    const valuesCabecera = [FechaFactura, Subtotal, Iva, Total, Estado, IdentificacionCliente,
                                  IdTipo];
 
     clientFacturacion.query(queryCabecera, valuesCabecera)
