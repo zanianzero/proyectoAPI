@@ -423,7 +423,7 @@ const obtenerProductosDesdeAPI = async () => {
     try {
       const API_URL = 'https://inventarioproductos.onrender.com/productos';
       const headers = {
-        Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hdGVpdG8iLCJpYXQiOjE2OTAxNzk0MTMsImV4cCI6MTY5MDI2NTgxM30.T9aLlxZgmnsPb2u-FgTCNybiL461SjSoFTUXr95NG-U',
+        Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hdGVpdG8iLCJpYXQiOjE2OTAyNDQ1MDYsImV4cCI6MTY5MDUwMzcwNn0.rvy8Ct3ERN0bCm-mAwH0KOqGue2ZPWthtBYFKn8ZhIc',
       };
   
       const response = await axios.get(API_URL, { headers });
