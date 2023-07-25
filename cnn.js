@@ -417,6 +417,91 @@ app.get('/api/productos/:id', (req, res) => {
         });
 });
 
+//Obtener todas las cabeceras de las facturas de las facturas que en el Estado sea igual a false
+app.get('/api/FactFacturaCabeceraporcobrar', (req, res) => {
+    const query = `SELECT * FROM public."FactFacturaCabecera" WHERE "Estado" = false`;
+
+    clientFacturacion.query(query)
+        .then(response => {
+            const facturas = response.rows;
+            res.json(facturas);
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ message: 'Error en el servidor' });
+        });
+});
+//Obtener todas las cabeceras de las facturas de las facturas que en el Estado sea igual a true
+app.get('/api/FactFacturaCabecerapagadas', (req, res) => {
+    const query = `SELECT * FROM public."FactFacturaCabecera" WHERE "Estado" = true`;
+
+    clientFacturacion.query(query)
+        .then(response => {
+            const facturas = response.rows;
+
+            res.json(facturas);
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ message: 'Error en el servidor' });
+        });
+});
+//Obtener todas los clientes que en las cabeceras de las facturas tengan el Estado false
+app.get('/api/FactClientesporcobrar', (req, res) => {
+    const query = `SELECT "FactCliente"."Identificacion", "FactCliente"."Nombre", "FactCliente"."FechaNacimiento",
+                    "FactCliente"."Direccion", "FactCliente"."Telefono", "FactCliente"."CorreoElectronico",
+                    "FactCliente"."Estado", "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
+                    "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
+                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera", "FactFacturaCabecera"."IdentificacionCliente",
+                    "FactFacturaCabecera"."IdTipo"
+                    FROM public."FactCliente"
+                    INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"
+                    WHERE "FactFacturaCabecera"."Estado" = false
+                    ORDER BY "FactCliente"."Identificacion"`;
+
+    clientFacturacion.query(query)
+
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+//Obtener todas los clientes mediante el id que en las cabeceras de las facturas tengan el Estado false
+app.get('/api/FactClientesporcobrar/:Identificacion', (req, res) => {
+    const Identificacion = req.params.Identificacion;
+    const query = `SELECT "FactCliente"."Identificacion", "FactCliente"."Nombre", "FactCliente"."FechaNacimiento",
+
+                    "FactCliente"."Direccion", "FactCliente"."Telefono", "FactCliente"."CorreoElectronico",
+                    "FactCliente"."Estado", "FactFacturaCabecera"."IdFacturaCabecera", "FactFacturaCabecera"."FechaFactura",
+                    "FactFacturaCabecera"."Subtotal", "FactFacturaCabecera"."Iva", "FactFacturaCabecera"."Total",
+                    "FactFacturaCabecera"."Estado", "FactFacturaCabecera", "FactFacturaCabecera"."IdentificacionCliente",
+                    "FactFacturaCabecera"."IdTipo"
+                    FROM public."FactCliente"
+                    INNER JOIN public."FactFacturaCabecera" ON "FactCliente"."Identificacion" = "FactFacturaCabecera"."IdentificacionCliente"
+                    WHERE "FactFacturaCabecera"."Estado" = false AND "FactCliente"."Identificacion" = $1
+                    ORDER BY "FactCliente"."Identificacion"`;
+
+    clientFacturacion.query(query, [Identificacion])
+
+
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+
+
+
+
+
+
+
+
 // Obtener los productos desde la API externa
 const obtenerProductosDesdeAPI = async () => {
     try {
@@ -449,22 +534,60 @@ const productoExiste = async (pro_id) => {
         const { pro_id, pro_nombre, pro_descripcion, pro_valor_iva, pro_costo, pro_pvp, pro_imagen, 
                         cat_id, pro_stock } = producto;
         const productoExisteEnDB = await productoExiste(pro_id);
-        
-        if (!productoExisteEnDB) {
-          const query = `INSERT INTO public.productos (pro_id, pro_nombre, pro_descripcion, pro_valor_iva, 
+  
+        if (productoExisteEnDB) {
+          // Verificar si los datos son diferentes antes de actualizar
+          const query = `SELECT * FROM public.productos WHERE pro_id = $1`;
+          const values = [pro_id];
+          const result = await clientFacturacion.query(query, values);
+          const productoDB = result.rows[0];
+  
+          if (productoDB.pro_nombre !== pro_nombre || productoDB.pro_descripcion !== pro_descripcion ||
+              productoDB.pro_valor_iva !== pro_valor_iva || productoDB.pro_costo !== pro_costo ||
+              productoDB.pro_pvp !== pro_pvp || productoDB.pro_imagen !== pro_imagen ||
+              productoDB.cat_id !== cat_id || productoDB.pro_stock !== pro_stock) {
+            const updateQuery = `UPDATE public.productos
+                                 SET pro_nombre = $2, pro_descripcion = $3, pro_valor_iva = $4,
+                                     pro_costo = $5, pro_pvp = $6, pro_imagen = $7,
+                                     cat_id = $8, pro_stock = $9
+                                 WHERE pro_id = $1`;
+            const updateValues = [pro_id, pro_nombre, pro_descripcion, pro_valor_iva, pro_costo, pro_pvp, pro_imagen,
+                                   cat_id, pro_stock];
+            await clientFacturacion.query(updateQuery, updateValues);
+            console.log(`Producto con ID ${pro_id} actualizado correctamente.`);
+          }
+        } else {
+          // Si el producto no existe, insertarlo
+          const insertQuery = `INSERT INTO public.productos (pro_id, pro_nombre, pro_descripcion, pro_valor_iva, 
                             pro_costo, pro_pvp, pro_imagen, cat_id, pro_stock)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
-          const values = [pro_id, pro_nombre, pro_descripcion, pro_valor_iva, pro_costo, pro_pvp, pro_imagen,
+                           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+          const insertValues = [pro_id, pro_nombre, pro_descripcion, pro_valor_iva, pro_costo, pro_pvp, pro_imagen,
                                  cat_id, pro_stock];
-          await clientFacturacion.query(query, values);
+          await clientFacturacion.query(insertQuery, insertValues);
+          console.log(`Producto con ID ${pro_id} insertado correctamente.`);
         }
       }
-    
-      console.log('Productos insertados correctamente en la base de datos.');
+  
+      // Verificar si hay productos en la base de datos que no estén presentes en la API y eliminarlos
+      const productosDB = await clientFacturacion.query('SELECT pro_id FROM public.productos');
+      const productosDBIds = productosDB.rows.map((producto) => producto.pro_id);
+  
+      for (const productoId of productosDBIds) {
+        const productoEnAPI = productos.find((producto) => producto.pro_id === productoId);
+        if (!productoEnAPI) {
+          const deleteQuery = `DELETE FROM public.productos WHERE pro_id = $1`;
+          const deleteValues = [productoId];
+          await clientFacturacion.query(deleteQuery, deleteValues);
+          console.log(`Producto con ID ${productoId} eliminado de la base de datos.`);
+        }
+      }
+  
+      console.log('Actualización y eliminación de productos finalizada.');
     } catch (error) {
-      console.error('Error al insertar productos en la base de datos:', error.message);
+      console.error('Error al insertar, actualizar o eliminar productos en la base de datos:', error.message);
     }
   };
+  
   
   // Ruta para obtener y guardar los productos desde la API externa
   app.get('/guardarproductos', async (req, res) => {
