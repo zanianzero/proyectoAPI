@@ -358,11 +358,10 @@ app.post('/api/FactFacturacion', (req, res) => {
 
             // Luego, insertamos los detalles de la factura uno por uno
             const insertDetallePromises = Detalles.map(detalle => {
-                const { Cantidad, Subtotal, IdProducto } = detalle;
-                const queryDetalle = `INSERT INTO public."FactDetalleFactura" ("Cantidad", "Subtotal", 
-                                                "IdProducto", "IdFacturaCabecera")
-                                       VALUES ($1, $2, $3, $4)`;
-                const valuesDetalle = [Cantidad, Subtotal, IdProducto, facturaCabeceraId];
+                const { Cantidad, IdProducto } = detalle;
+                const queryDetalle = `INSERT INTO public."FactDetalleFactura" ("Cantidad", "IdProducto", "IdFacturaCabecera")
+                                       VALUES ($1, $2, $3)`;
+                const valuesDetalle = [Cantidad, IdProducto, facturaCabeceraId];
                 return clientFacturacion.query(queryDetalle, valuesDetalle);
             });
 
