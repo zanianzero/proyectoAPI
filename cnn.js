@@ -30,6 +30,40 @@ app.get('/api/FactAuditoria', (req, res) => {
         });
 });
 
+//obtener los datos de users
+app.get('/api/FactUsers', (req, res) => {
+    clientFacturacion.query('SELECT * FROM users ORDER BY "usr_id"')
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+//obtener los datos de users por id
+app.get('/api/FactUsers/:id', (req, res) => {
+    const id = req.params.id;
+    const query = `SELECT * FROM users WHERE "usr_id" = '$1'`;
+    const values = [id];
+    clientFacturacion.query(query, values)
+
+        .then(response => {
+            res.json(response.rows);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+});
+
+
+
+
+
+
+
+
+
 //filtrar los datos de la auditoria por fecha inicio y fecha fin
 app.get('/api/FactAuditoria/:fechaInicio/:fechaFin', (req, res) => {
     const fechaInicio = req.params.fechaInicio;
