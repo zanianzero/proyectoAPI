@@ -525,9 +525,6 @@ app.get('/api/FactFacturaCabecerapagadas', (req, res) => {
     });
 
 
-
-
-
 //Obtener todas los clientes mediante el id que en las cabeceras de las facturas tengan el Estado false
 app.get('/api/FactClientesporcobrar/:Identificacion', (req, res) => {
     const Identificacion = req.params.Identificacion;
@@ -660,8 +657,8 @@ const productoExiste = async (pro_id) => {
     }
   });
   
-
-  const obtenerUsuariosDesdeAPI = async () => {
+// obtener usuarios
+const obtenerUsuariosDesdeAPI = async () => {
     try {
       const API_URL = 'http://20.163.192.189:8080/api/user';
       const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwODA0MzIxMzcwIiwiZXhwIjoxNjk0OTg1NDgyfQ.GljEqO4wDKT_x94OIQ76k2AraJUY4YKAwBFrfs-ZsMQ';
@@ -671,117 +668,73 @@ const productoExiste = async (pro_id) => {
       };
   
       const response = await axios.get(API_URL, { headers });
-      return response.data;
+      return response.data.tb_user;
     } catch (error) {
       console.error('Error al obtener los usuarios desde la API:', error.message);
       return [];
     }
   };
   
-  
-  // Función para insertar un usuario en la base de datos
-  const insertarUsuario = async (usuario) => {
-    const {
-      usr_id,
-      usr_first_name,
-      usr_second_name,
-      usr_first_lastname,
-      usr_second_lastname,
-      usr_full_name,
-      usr_user,
-      usr_email,
-      usr_password,
-      usr_state,
-      usr_date,
-    } = usuario;
-    const usuarioExisteEnDB = await usuarioExiste(usr_id);
-  
-    if (usuarioExisteEnDB) {
-      // Verificar si los datos son diferentes antes de actualizar
-      const query = `SELECT * FROM public.users WHERE usr_id = $1`;
-      const values = [usr_id];
-      const result = await clientFacturacion.query(query, values);
-      const usuarioDB = result.rows[0];
-  
-      if (
-        usuarioDB.usr_first_name !== usr_first_name ||
-        usuarioDB.usr_second_name !== usr_second_name ||
-        usuarioDB.usr_first_lastname !== usr_first_lastname ||
-        usuarioDB.usr_second_lastname !== usr_second_lastname ||
-        usuarioDB.usr_full_name !== usr_full_name ||
-        usuarioDB.usr_user !== usr_user ||
-        usuarioDB.usr_email !== usr_email ||
-        usuarioDB.usr_password !== usr_password ||
-        usuarioDB.usr_state !== usr_state ||
-        usuarioDB.usr_date !== usr_date
-      ) {
-        const updateQuery = `UPDATE public.users
-                             SET usr_first_name = $2, usr_second_name = $3, usr_first_lastname = $4,
-                                 usr_second_lastname = $5, usr_full_name = $6, usr_user = $7,
-                                 usr_email = $8, usr_password = $9, usr_state = $10, usr_date = $11
-                             WHERE usr_id = $1`;
-        const updateValues = [
-          usr_id,
-          usr_first_name,
-          usr_second_name,
-          usr_first_lastname,
-          usr_second_lastname,
-          usr_full_name,
-          usr_user,
-          usr_email,
-          usr_password,
-          usr_state,
-          usr_date,
-        ];
-        await clientFacturacion.query(updateQuery, updateValues);
-        console.log(`Usuario con ID ${usr_id} actualizado correctamente.`);
-      }
-    } else {
-      const insertQuery = `INSERT INTO public.users (usr_id, usr_first_name, usr_second_name, usr_first_lastname,
-                        usr_second_lastname, usr_full_name, usr_user, usr_email, usr_password, usr_state, usr_date)
-                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
-      const insertValues = [
-        usr_id,
-        usr_first_name,
-        usr_second_name,
-        usr_first_lastname,
-        usr_second_lastname,
-        usr_full_name,
-        usr_user,
-        usr_email,
-        usr_password,
-        usr_state,
-        usr_date,
-      ];
-      await clientFacturacion.query(insertQuery, insertValues);
-      console.log(`Usuario con ID ${usr_id} insertado correctamente.`);
-    }
+  const usuarioExiste = async (usr_id) => {
+    const query = `SELECT COUNT(*) FROM public.users WHERE usr_id = $1`;
+    const values = [usr_id];
+    const result = await clientFacturacion.query(query, values);
+    return result.rows[0].count > 0;
   };
   
-  // Función para insertar varios usuarios en la base de datos
   const insertarUsuarios = async (usuarios) => {
     try {
+      const existingUserIds = new Set();
+  
       for (const usuario of usuarios) {
-        await insertarUsuario(usuario);
+        const { usr_id, usr_first_name, usr_second_name, usr_first_lastname, usr_second_lastname, usr_full_name, usr_user, usr_email, usr_password, usr_state, usr_date } = usuario;
+        
+        existingUserIds.add(usr_id);
+        const usuarioExisteEnDB = await usuarioExiste(usr_id);
+  
+        if (!usuarioExisteEnDB) {
+          // If the user does not exist, insert the record
+          const query = `INSERT INTO public.users (usr_id, usr_first_name, usr_second_name, usr_first_lastname, usr_second_lastname, usr_full_name, usr_user, usr_email, usr_password, usr_state, usr_date)
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
+          const values = [usr_id, usr_first_name, usr_second_name, usr_first_lastname, usr_second_lastname, usr_full_name, usr_user, usr_email, usr_password, usr_state, usr_date];
+          await clientFacturacion.query(query, values);
+        } else {
+          // If the user exists, update the record
+          const query = `UPDATE public.users SET usr_first_name = $2, usr_second_name = $3, usr_first_lastname = $4, usr_second_lastname = $5, usr_full_name = $6, usr_user = $7, usr_email = $8, usr_password = $9, usr_state = $10, usr_date = $11
+                         WHERE usr_id = $1`;
+          const values = [usr_id, usr_first_name, usr_second_name, usr_first_lastname, usr_second_lastname, usr_full_name, usr_user, usr_email, usr_password, usr_state, usr_date];
+          await clientFacturacion.query(query, values);
+        }
       }
   
-      // Resto del código para eliminar usuarios no presentes en la API...
+      // After handling insertions and updates, check for deletions
+      const queryAllUsers = `SELECT usr_id FROM public.users`;
+      const allUsersResult = await clientFacturacion.query(queryAllUsers);
+  
+      for (const existingUser of allUsersResult.rows) {
+        if (!existingUserIds.has(existingUser.usr_id)) {
+          // If the user from the database does not exist in the API data, delete the record
+          const queryDelete = `DELETE FROM public.users WHERE usr_id = $1`;
+          await clientFacturacion.query(queryDelete, [existingUser.usr_id]);
+        }
+      }
+  
+      console.log('Usuarios actualizados correctamente en la base de datos.');
     } catch (error) {
-      console.error('Error al insertar, actualizar o eliminar usuarios en la base de datos:', error.message);
+      console.error('Error al actualizar usuarios en la base de datos:', error.message);
     }
   };
   
-  // Ruta para obtener y guardar los usuarios desde la API NoSQL
   app.get('/guardarusuarios', async (req, res) => {
     try {
-      const usuariosNoSQL = await obtenerUsuariosDesdeAPI();
-      const usuariosSQL = usuariosNoSQL.map(transformarDatos); // Transforma los datos NoSQL a SQL
-      await insertarUsuarios(usuariosSQL);
+      const usuarios = await obtenerUsuariosDesdeAPI();
+      await insertarUsuarios(usuarios);
       res.send('Usuarios obtenidos y guardados en la base de datos.');
     } catch (error) {
       res.status(500).json({ message: 'Error al obtener y guardar los usuarios.' });
     }
   });
+
 
 // Iniciar el servidor
 app.listen(port, () => {
