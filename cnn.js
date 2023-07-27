@@ -660,7 +660,7 @@ const productoExiste = async (pro_id) => {
 // obtener usuarios
 const obtenerUsuariosDesdeAPI = async () => {
     try {
-      const API_URL = 'http://20.163.192.189:8080/api/user';
+      const API_URL = 'http://20.163.192.189:8080/api/user/facturacion';
       const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwODA0MzIxMzcwIiwiZXhwIjoxNjk0OTg1NDgyfQ.GljEqO4wDKT_x94OIQ76k2AraJUY4YKAwBFrfs-ZsMQ';
         
       const headers = {
